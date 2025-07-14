@@ -1,0 +1,28 @@
+# GitHub Actions self-hosted runner files
+/actions-runner/
+/actions-runner/*
+!/.gitignore
+
+# Fichiers/dossiers Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environnement virtuel
+env/
+venv/
+
+# Fichiers de base de données locaux
+*.sqlite3
+
+# Migrations (si tu veux les ignorer)
+**/migrations/
+
+# Configuration locale Django
+*.log
+*.pot
+*.pyc
+
+# VS Code / IDE
+.vscode/
+.idea/

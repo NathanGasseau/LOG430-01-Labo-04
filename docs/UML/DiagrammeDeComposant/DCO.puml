@@ -1,0 +1,36 @@
+@startuml
+title SGC – Diagramme de composantes (REST seulement)
+
+package "Maison Mère (Serveur Central)" {
+
+  [Interface API REST] --> [REST Controller Layer] : HTTP/JSON
+
+  [REST Controller Layer] --> [CaisseService]
+  [REST Controller Layer] --> [MaisonMereService]
+
+  [CaisseService] --> [StockService]
+  [CaisseService] --> [VenteService]
+  [CaisseService] --> [DemandeApprovisionnementService]
+  [CaisseService] --> [TransactionManager]
+  [CaisseService] --> [LoggingService]
+  
+  [MaisonMereService] --> [DemandeApprovisionnementService]
+  [MaisonMereService] --> [VenteService]
+  [MaisonMereService] --> [StockService]
+  [MaisonMereService] --> [LoggingService]
+
+  [StockService] --> [ProduitRepository]
+  [StockService] --> [DemandeApprovisionnementRepository]
+
+  [VenteService] --> [VenteRepository]
+
+  [DemandeApprovisionnementService] --> [DemandeApprovisionnementRepository]
+
+  [ProduitRepository] --> [Pool de Connexions]
+  [VenteRepository] --> [Pool de Connexions]
+  [DemandeApprovisionnementRepository] --> [Pool de Connexions]
+
+  [Pool de Connexions] --> [Base de données PostgreSQL]
+}
+
+@enduml

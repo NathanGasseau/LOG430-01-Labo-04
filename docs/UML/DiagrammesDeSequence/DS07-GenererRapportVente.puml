@@ -1,0 +1,20 @@
+@startuml
+
+title DS07 – Générer un rapport consolidé des ventes
+
+actor Gestionnaire
+participant UI
+participant MaisonMereService
+participant VenteService
+participant VenteRepository
+
+Gestionnaire -> UI : Générer rapport consolidé
+UI -> MaisonMereService : genererRapportConsolide()
+MaisonMereService -> VenteService : rechercherVenteTousMagasins()
+VenteService -> VenteRepository : getAll()
+VenteRepository --> VenteService : List<Vente>
+VenteService --> MaisonMereService : List<Vente>
+MaisonMereService --> UI : Rapport consolidé
+UI --> Gestionnaire : Affiche ou télécharge rapport
+
+@enduml

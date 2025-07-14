@@ -1,0 +1,16 @@
+@startuml
+title DS01 – Rechercher un produit
+
+actor Employe
+participant "Client Console" as UI
+participant CaisseService
+participant ProduitRepository
+
+Employe -> UI : Demande recherche produit
+UI -> CaisseService : rechercherProduit(critères)
+CaisseService -> ProduitRepository : findById / findByNom / findByCategorie
+ProduitRepository --> CaisseService : List<Produit>
+CaisseService --> UI : List<Produit>
+UI --> Employe : Affiche les résultats
+
+@enduml

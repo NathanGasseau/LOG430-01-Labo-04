@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: sgc_db
+      POSTGRES_USER: sgc_user
+      POSTGRES_PASSWORD: sgc_pass
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    command: postgres -c password_encryption=md5
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sgc_user -d sgc_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    restart: always
+    ports:
+      - "6432:6432"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: sgc_user
+      DB_PASSWORD: sgc_pass
+      DB_NAME: sgc_db
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 100
+      DEFAULT_POOL_SIZE: 20
+
+  web:
+    build: .
+    command: >
+      sh -c "
+      echo '🕐 Waiting for DB...' &&
+      until pg_isready -h pgbouncer -p 5432 -U sgc_user; do sleep 1; done &&
+      echo '✅ DB is ready, applying migrations...' &&
+      python manage.py migrate &&
+      echo '🌱 Running seed data...' &&
+      python manage.py runscript seed_data &&
+      echo '🚀 Starting server...' &&
+      python manage.py runserver 0.0.0.0:8000
+      "
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      pgbouncer:
+        condition: service_started
+    environment:
+      PYTHONUNBUFFERED: 1
+      DEBUG: "1"
+      DATABASE_URL: postgres://sgc_user:sgc_pass@pgbouncer:5432/sgc_db
+
+volumes:
+  postgres_data:

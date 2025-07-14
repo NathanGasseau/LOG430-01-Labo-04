@@ -1,0 +1,25 @@
+@startuml
+
+title DS08 – Visualiser les performances des magasins
+
+actor Gestionnaire
+participant UI
+participant MaisonMereService
+participant VenteService
+participant VenteRepository
+
+Gestionnaire -> UI : Visualiser performances magasins
+UI -> MaisonMereService : getStatsParMagasin()
+MaisonMereService -> VenteService : getStatsParMagasin()
+
+loop Pour chaque magasin
+  VenteService -> VenteRepository : findByMagasin(magasin)
+  VenteRepository --> VenteService : List<Vente>
+  VenteService -> VenteService : genererKpiParMagasin(magasin)
+end
+
+VenteService --> MaisonMereService : Map<Magasin, KPIs>
+MaisonMereService --> UI : Données agrégées
+UI --> Gestionnaire : Affiche tableau de bord
+
+@enduml

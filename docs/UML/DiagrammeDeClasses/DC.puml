@@ -1,0 +1,182 @@
+@startuml SGC
+skinparam classAttributeIconSize 0
+
+title Système de Gestion de Caisse (SGC) - Diagramme de classe du domaine
+
+' == Modèle de domaine ==
+class Produit {
+  - id: int
+  - nom: String
+  - categorie: Categorie
+  - prix: float
+}
+
+class Catégorie {
+  - id: int
+  - nom: String
+  - description: String
+  - produits: List<Produit>
+}
+
+class Vente {
+  - id: int
+  - date: Date
+  - produits: List<LigneVente>
+  - total: float
+  - magasin: Magasin
+}
+
+class LigneVente {
+  - produit: Produit
+  - quantite: int
+}
+
+class Retour {
+  - vente: Vente
+  - produitsRetournes: List<LigneVente>
+  - dateRetour: Date
+}
+
+class Magasin {
+  - id: int
+  - nom: String
+  - adresse: String
+}
+
+class MaisonMere {
+  - id: int
+  - nom: String
+  - adresse: String
+}
+
+class Gestionnaire {
+  - id: int
+  - nom: String
+}
+
+class ResponsableLogistique {
+  - id: int
+  - nom: String
+}
+
+class DemandeApprovisionnement {
+  - id: int
+  - date: Date
+  - statut: String
+  - lignes: List<LigneApprovisionnement>
+  - magasinDemandeur: Magasin
+}
+
+class LigneApprovisionnement {
+  - produit: Produit
+  - quantite: int
+}
+
+class StockProduit {
+  - produit: Produit
+  - quantite: int
+}
+
+' == Couche service / logique métier ==
+class CaisseService {
+  + rechercherProduit(id: int): Produit
+  + rechercherProduit(nom: String): List<Produit>
+  + rechercherProduit(categorie: Categorie): List<Produit>
+  + enregistrerVente(produits: List<LigneVente>): Vente
+  + rechercherVente(produit: Produit): List<Vente>
+  + rechercherVente(date: Date): List<Vente>
+  + annulerVente(idVente: int): Retour
+  + consulterStock(): List<StockProduit>
+  + initierDemandeApprovisionnement(produit: Produit, qte: int): DemandeApprovisionnement
+}
+
+class MaisonMereService {
+  + consulterStockGlobal(): List<StockProduit>
+  + genererRapportConsolide(): Rapport
+  + visualiserPerformancesMagasins(): List<KPI>
+  + getVentesParMagasin(magasin: Magasin): List<Vente>
+}
+
+class StockService {
+  + consulterStock(): List<StockProduit>
+  + reserverStock(produit: Produit, qte: int): bool
+  + libererStock(produit: Produit, qte: int): void
+  + mettreAJourStock(produit: Produit, qte: int): void
+  + creerDemandeApprovisionnementStock(produit: Produit, qte: int): void
+}
+
+class VenteService {
+  + enregistrerVente(produits: List<LigneVente>): Vente
+  + annulerVente(idVente: int): Retour
+  + rechercherVente(produit: Produit): List<Vente>
+  + rechercherVente(date: Date): List<Vente>
+  + rechercherVente(magasin: Magasin): List<Vente>
+  + rechercherVenteTousMagasins():  List<Vente>
+  + getStatsParMagasin(magasin: Magasin): List<Vente>
+  + genererKpiParMagasin(magasin: Magasin): Map<Magasin, KPIs>
+}
+
+class DemandeApprovisionnementService {
+  + creerDemande(produit: Produit, qte: int, magasin: Magasin): DemandeApprovisionnement
+}
+
+' == Couche persistance ==
+interface ProduitRepository {
+  + findById(id: int): Produit
+  + findByNom(nom: String): List<Produit>
+  + findByCategorie(categorie: Categorie): List<Produit>
+  + getAll(): List<Produit>
+}
+
+interface VenteRepository {
+  + save(vente: Vente): void
+  + findById(id: int): Vente
+  + delete(id: int): void
+  + getAll(): List<Vente>
+}
+
+interface DemandeApprovisionnementRepository {
+  + save(demande: DemandeApprovisionnement): void
+  + findById(id: int): DemandeApprovisionnement
+  + findByMagasin(magasin: Magasin): List<DemandeApprovisionnement>
+}
+
+interface TransactionManager {
+  + begin(): void
+  + commit(): void
+  + rollback(): void
+}
+
+' == Relations ==
+Catégorie "1" o-- "1..*" Produit : appartient à
+Produit "1" <-- "0..*" LigneVente : utilisé dans >
+Vente "1" --> "0..*" LigneVente : composée de >
+Retour "1" --* "1" Vente
+
+Magasin "1" o-- "0..*" Vente
+MaisonMere "1" o-- "1..*" Magasin : supervise >
+Gestionnaire "1" o-- "1..*" Magasin : gère >
+MaisonMere "1" o-- "1" ResponsableLogistique
+MaisonMere "1" o-- "1" MaisonMereService : utilise
+ResponsableLogistique "*" --> DemandeApprovisionnement : approuve
+
+DemandeApprovisionnement "1" o-- "1..*" LigneApprovisionnement : contient >
+Magasin "1" o-- "0..*" DemandeApprovisionnement : initie >
+
+StockService --> "*" StockProduit
+StockService --> ProduitRepository
+
+VenteService --> VenteRepository
+DemandeApprovisionnementService --> DemandeApprovisionnementRepository
+
+CaisseService --> StockService
+CaisseService --> VenteService
+CaisseService --> DemandeApprovisionnementService
+CaisseService --> TransactionManager
+
+MaisonMereService --> StockService
+MaisonMereService --> VenteService
+
+Magasin "1" o-- "1..*" CaisseService : possède >
+
+@enduml

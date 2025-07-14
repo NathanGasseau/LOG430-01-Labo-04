@@ -1,0 +1,30 @@
+{% extends 'menu.html' %}
+{% block content %}
+<h2>Recherche de produit</h2>
+
+<form method="get">
+  <div class="mb-2">
+    <input type="text" name="id" placeholder="ID produit" value="{{ criteres.id }}" class="form-control">
+  </div>
+  <div class="mb-2">
+    <input type="text" name="nom" placeholder="Nom produit" value="{{ criteres.nom }}" class="form-control">
+  </div>
+  <div class="mb-2">
+    <input type="text" name="categorie" placeholder="Catégorie" value="{{ criteres.categorie }}" class="form-control">
+  </div>
+  <button class="btn btn-primary" >Rechercher</button>
+</form>
+
+{% if produits %}
+  <h3 class="mt-4">Résultats :</h3>
+  <ul class="list-group">
+    {% for produit in produits %}
+      <li class="list-group-item">
+        {{ produit.nom }} – {{ produit.categorie }} – {{ produit.prix }}$
+      </li>
+    {% endfor %}
+  </ul>
+{% elif criteres.nom or criteres.categorie or criteres.id %}
+  <p class="text-danger mt-3">Aucun produit trouvé.</p>
+{% endif %}
+{% endblock %}

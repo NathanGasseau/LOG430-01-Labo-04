@@ -1,0 +1,17 @@
+@startuml
+
+title DS04 – Consulter stock en magasin
+
+actor Employe
+participant UI
+participant CaisseService
+participant StockService
+
+Employe -> UI : Consulter stock magasin
+UI -> CaisseService : consulterStock()
+CaisseService -> StockService : consulterStock()
+StockService --> CaisseService : List<StockProduit>
+CaisseService --> UI : List<StockProduit>
+UI --> Employe : Affiche stock
+
+@enduml

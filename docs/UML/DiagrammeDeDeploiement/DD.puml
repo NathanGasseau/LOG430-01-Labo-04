@@ -1,0 +1,73 @@
+@startuml SGC
+
+title Système de Gestion de Caisse (SGC) - Architecture de Déploiement (API REST)
+
+node "Maison Mère (Serveur Central)" {
+  node "Serveur Django Monolithique" {
+    component "Interface API REST" <<REST>>
+    component "REST Controller Layer" <<controller>>
+
+    component "CaisseService"
+    component "MaisonMereService"
+    component "StockService"
+    component "VenteService"
+    component "DemandeApprovisionnementService"
+    component "RapportService"
+
+    component "ProduitRepository"
+    component "VenteRepository"
+    component "DemandeApprovisionnementRepository"
+    component "TransactionManager"
+    component "LoggingService" <<library>>
+    component "Pool de Connexions" <<connector>>
+  }
+
+  node "Serveur Base de Données" {
+    database "Base de données PostgreSQL" as DB
+  }
+}
+
+node "Poste de travail N" {
+  node "Interface Caisse N" {
+    component "Client Console" <<HTTP client>>
+  }
+}
+
+node "Poste Maison Mère" {
+  node "Interface" {
+    component "Interface Web Maison Mère" <<HTTP client>>
+  }
+}
+
+"Client Console" --> "Interface API REST" : HTTP/JSON
+"Interface Web Maison Mère" --> "Interface API REST" : HTTP/JSON
+
+"Interface API REST" --> "REST Controller Layer"
+"REST Controller Layer" --> "CaisseService"
+"REST Controller Layer" --> "MaisonMereService"
+"REST Controller Layer" --> "StockService"
+"REST Controller Layer" --> "VenteService"
+"REST Controller Layer" --> "DemandeApprovisionnementService"
+"REST Controller Layer" --> "RapportService"
+
+"CaisseService" --> "StockService"
+"CaisseService" --> "VenteService"
+"CaisseService" --> "DemandeApprovisionnementService"
+"CaisseService" --> "TransactionManager"
+"CaisseService" --> "LoggingService"
+
+"MaisonMereService" --> "StockService"
+"MaisonMereService" --> "VenteService"
+"MaisonMereService" --> "RapportService"
+
+"StockService" --> "ProduitRepository"
+"VenteService" --> "VenteRepository"
+"DemandeApprovisionnementService" --> "DemandeApprovisionnementRepository"
+
+"ProduitRepository" --> "Pool de Connexions"
+"VenteRepository" --> "Pool de Connexions"
+"DemandeApprovisionnementRepository" --> "Pool de Connexions"
+"Pool de Connexions" --> DB
+
+@enduml
+s

@@ -1,0 +1,32 @@
+@startuml SGC
+top to bottom direction
+
+title Système de Gestion de Caisse (SGC) - Cas d'utilisations 
+
+actor Employe as E
+actor Gestionnaire as G
+actor ResponsableLogistique as R
+
+rectangle "Système de Caisse" {
+
+  ' Fonctions de base (Labo-01)
+  E --> (CU01 - Rechercher un produit)
+  E --> (CU02 - Enregistrer une vente)
+  E --> (CU03 - Gérer les retours)
+  E --> (CU04 - Consulter l'état du stock en magasin)
+
+  ' Fonctions ajoutées (Labo-02)
+
+  ' Must have
+  E --> (CU05 - Consulter l'état du stock à la maison mère)
+  E --> (CU06 - Initier demande d'approvisionnement)
+  G --> (CU07 - Générer un rapport consolidé des ventes)
+  G --> (CU08 - Visualiser les performances des magasins)
+
+  ' Should have
+  G --> ("CU09 - <color:red>Mettre à jour les produits</color>")
+  R --> ("CU10 - <color:red>Approuver demande d'approvisionnement</color>")
+
+}
+
+@enduml

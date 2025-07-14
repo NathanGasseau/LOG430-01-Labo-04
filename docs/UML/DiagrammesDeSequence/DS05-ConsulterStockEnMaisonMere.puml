@@ -1,0 +1,17 @@
+@startuml
+
+title DS05 – Consulter stock à la maison mère
+
+actor Employe
+participant UI
+participant MaisonMereService
+participant StockService
+
+Employe -> UI : Consulter stock central
+UI -> MaisonMereService : consulterStockGlobal()
+MaisonMereService -> StockService : consulterStock()
+StockService --> MaisonMereService : List<StockProduit>
+MaisonMereService --> UI : List<StockProduit>
+UI --> Employe : Affiche stock
+
+@enduml

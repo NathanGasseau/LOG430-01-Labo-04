@@ -1,0 +1,20 @@
+@startuml
+
+title DS06 – Initier demande d'approvisionnement
+
+actor Employe
+participant UI
+participant CaisseService
+participant DemandeApprovisionnementService
+participant DemandeApprovisionnementRepository
+
+Employe -> UI : Initier demande (produit, quantité)
+UI -> CaisseService : initierDemandeApprovisionnement(produit, quantité)
+CaisseService -> DemandeApprovisionnementService : creerDemande(produit, quantité, magasin)
+DemandeApprovisionnementService -> DemandeApprovisionnementRepository : save(demande)
+DemandeApprovisionnementRepository --> DemandeApprovisionnementService : confirmation
+DemandeApprovisionnementService --> CaisseService : demande créée
+CaisseService --> UI : Confirmation demande
+UI --> Employe : Affiche confirmation
+
+@enduml

@@ -1,0 +1,19 @@
+# ADR-03: Interdiction des communications REST, adoption de gRPC
+
+## Statut  
+Accepté – 7 juin 2025
+
+## Contexte  
+Dans le cadre de ce projet, les communications inter-services doivent être **fortement typées**, **rapides** et **contractuelles**. Les interfaces REST, bien que très utilisées, ne sont pas acceptées dans le contexte actuel.
+
+## Décision  
+Les communications internes entre clients et serveur (et entre services si nécessaire) se font exclusivement via **gRPC**.
+
+## Justification  
+- gRPC repose sur **Protocol Buffers**, assurant un contrat clair et typé.
+- Il offre de **meilleures performances** que REST pour des appels fréquents.
+- L'utilisation de gRPC s'aligne sur les **contraintes techniques** imposées au projet.
+
+## Conséquences  
+- Tous les clients (ex: `Client Console`) doivent implémenter des **stubs gRPC**.
+- La documentation des services devra inclure les **fichiers `.proto`**.

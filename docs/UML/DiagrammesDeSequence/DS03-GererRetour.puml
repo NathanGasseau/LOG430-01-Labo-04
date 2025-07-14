@@ -1,0 +1,23 @@
+@startuml
+title DS03 – Gérer un retour (annuler une vente)
+
+actor Employe
+participant UI
+participant CaisseService
+participant TransactionManager
+participant VenteRepository
+participant StockService
+
+Employe -> UI : Gérer retour
+UI -> CaisseService : annulerVente(idVente)
+
+CaisseService -> TransactionManager : begin()
+CaisseService -> VenteRepository : findById(idVente)
+CaisseService -> StockService : libererStock(produitsRetournes)
+CaisseService -> VenteRepository : delete(idVente)
+CaisseService -> TransactionManager : commit()
+
+CaisseService --> UI : Confirmation retour
+UI --> Employe : Affiche confirmation
+
+@enduml
