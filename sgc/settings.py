@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'sgc.core.middleware.metrics_middleware.MetricsMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
@@ -122,8 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # CORS (Cross-Origin Resource Sharing) settings
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # frontend local
-    "https://tonfrontend.com",  # en prod
+    "http://localhost:3000",
 ]
 
 # Authentification APIAPI_TOKEN = "ma-cle-api-super-secrete-123"

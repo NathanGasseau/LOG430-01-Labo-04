@@ -112,6 +112,8 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     restart: unless-stopped
+    networks:
+      - monitoring
 
 volumes:
   postgres_data:
