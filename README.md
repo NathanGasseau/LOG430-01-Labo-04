@@ -23,12 +23,26 @@ L'application utilise PostgreSQL comme base de données centrale, avec un **pool
 
 #### 📦 Option 1 – Via Docker (recommandé en production ou en CI/CD)
 
-Prérequis : [Docker](https://www.docker.com/) et [docker-compose](https://docs.docker.com/compose/)
+**Prérequis :** [Docker](https://www.docker.com/) et [docker-compose](https://docs.docker.com/compose/)
 
 ```bash
 git clone https://github.com/NathanGasseau/LOG430-01-Labo-03.git
 cd LOG430-01-Labo-02
 docker-compose up --build
+```
+Une fois les conteneurs démarrés, exécute les commandes suivantes depuis le conteneur web pour générer les tables nécessaires :
+```bash
+# Accéder au conteneur web
+docker-compose exec web bash
+
+# Générer les migrations pour les modèles du module "core"
+python manage.py makemigrations core
+
+# Appliquer toutes les migrations à la base de données
+python manage.py migrate
+
+# (Optionnel) Lancer le script de peuplement de la base
+python manage.py runscript seed_data
 ```
 
 Accéder à l’application :  
@@ -56,7 +70,6 @@ pip install -r requirements.txt
 
 # Configuration et exécution
 python3 manage.py migrate
-python3 manage.py loaddata initial_data.json  # Optionnel
 python3 manage.py runserver
 ```
 

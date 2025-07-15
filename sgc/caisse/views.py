@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.conf import settings
 from sgc.service_factory import get_caisse_service
 from sgc.core.models import LigneVente, Magasin
+from django.conf import settings
 import requests
 
 def vue_rechercher_produit(request):
-    print("Recherche de produit avec critères :", request.GET)
 
     critere_nom = request.GET.get('nom', '').strip()
     critere_cat = request.GET.get('categorie', '').strip()
@@ -21,11 +22,15 @@ def vue_rechercher_produit(request):
     produits = []
     if criteria_filtrés:
         try:
-            response = requests.get("http://localhost:8000/api/v1/produits/recherche/", params=criteria_filtrés)
+            headers = {
+                "Authorization": f"Token {settings.API_TOKEN}"
+            }
+            response = requests.get("http://localhost:8000/api/v1/produits/recherche/", params=criteria_filtrés, headers=headers)
             if response.status_code == 200:
                 produits = response.json()
             else:
                 print("🔴 API a retourné un statut non-200 :", response.status_code)
+                print("📝 Contenu de la réponse :", response.text)
         except Exception as e:
             print("🔴 Erreur lors de l'appel à l'API :", e)
 
@@ -46,13 +51,17 @@ def vue_enregistrer_vente(request):
 
             # Appeler l'API REST pour enregistrer la vente
             api_url = "http://localhost:8000//api/v1/ventes/"
-            response = requests.post(api_url, json={"produits": ids})
+            headers = {
+                "Authorization": f"Token {settings.API_TOKEN}"
+            }
+            response = requests.post(api_url, json={"produits": ids}, headers=headers)
 
             if response.status_code == 201:
                 total = response.json().get("total", 0)
                 return render(request, "caisse/confirmation_vente.html", {"total": total})
             else:
-                raise Exception(response.json().get("detail", "Erreur inconnue de l'API"))
+                print("🔴 API a retourné un statut non-200 :", response.status_code)
+                print("📝 Contenu de la réponse :", response.text)
 
         except Exception as e:
             messages.error(request, str(e))

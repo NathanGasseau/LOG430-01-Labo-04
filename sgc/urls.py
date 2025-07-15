@@ -23,5 +23,7 @@ urlpatterns = [
     path('', views.vue_accueil_caisse, name='accueil'),
     path('caisse/', include('sgc.caisse.urls')),
     path('api/v1/', include('api.urls')),
+    path('', include('django_prometheus.urls')),  # expose /metrics
+
     #path('maison-mere/', include('sgc.maison_mere.urls')),
 ]

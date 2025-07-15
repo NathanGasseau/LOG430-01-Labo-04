@@ -28,9 +28,9 @@ def run():
 
     # Création de stock pour chaque produit dans chaque magasin
     for magasin in [magasin_montreal, magasin_quebec]:
-        StockProduit.objects.create(produit=clavier, magasin=magasin, quantite=10)
-        StockProduit.objects.create(produit=souris, magasin=magasin, quantite=20)
-        StockProduit.objects.create(produit=ecran, magasin=magasin, quantite=5)
+        StockProduit.objects.create(produit=clavier, magasin=magasin, quantite=999999999)
+        StockProduit.objects.create(produit=souris, magasin=magasin, quantite=999999999)
+        StockProduit.objects.create(produit=ecran, magasin=magasin, quantite=999999999)
         StockProduit.objects.create(produit=agrafeuse, magasin=magasin, quantite=15)
         StockProduit.objects.create(produit=bloc_notes, magasin=magasin, quantite=50)
     

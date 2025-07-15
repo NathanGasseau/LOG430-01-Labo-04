@@ -13,3 +13,4 @@ djangorestframework
 requests
 drf-yasg
 django-cors-headers
+django-prometheus

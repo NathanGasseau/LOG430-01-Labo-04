@@ -10,6 +10,9 @@ from api.authentication import StaticTokenAuthentication
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework import serializers
+import logging
+
+logger = logging.getLogger(__name__)
 
 # === SCHEMAS ===
 
@@ -57,7 +60,10 @@ class ProduitRechercheView(APIView):
             'categorie': categorie
         }.items() if v is not None}
 
+        logger.info(f"🔍 Requête API: recherche de produits avec critères {criteria}")
+
         if not criteria:
+            logger.warning("❗ Requête invalide: aucun critère fourni")
             return Response(
                 {"detail": "Vous devez fournir au moins un critère : id, nom ou categorie."},
                 status=status.HTTP_400_BAD_REQUEST
@@ -68,8 +74,10 @@ class ProduitRechercheView(APIView):
         try:
             produits = stock_service.rechercher_produits(criteria)
             produits_dict = [model_to_dict(p) for p in produits]
+            logger.info(f"✅ Recherche réussie : {len(produits_dict)} produits trouvés.")
             return Response(produits_dict)
         except Exception as e:
+            logger.error(f"❌ Erreur lors de la recherche de produits: {str(e)}")
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -88,9 +96,12 @@ class VenteEnregistrementView(APIView):
         }
     )
     def post(self, request):
+        logger.info(f"🛒 Requête API: enregistrement d'une vente avec payload {request.data}")
+
         try:
             ids = request.data.get("produits", [])
             if not ids:
+                logger.warning("❗ Aucune liste de produits reçue pour la vente.")
                 return Response({"detail": "Aucun produit fourni."}, status=status.HTTP_400_BAD_REQUEST)
 
             caisse_service = get_caisse_service()
@@ -105,7 +116,9 @@ class VenteEnregistrementView(APIView):
             magasin = Magasin.objects.first()
             vente = caisse_service.enregistrer_vente(lignes, magasin)
 
+            logger.info(f"✅ Vente enregistrée : total = {vente['total']}, produits = {ids}")
             return Response({"message": "Vente enregistrée", "total": vente["total"]}, status=status.HTTP_201_CREATED)
 
         except Exception as e:
+            logger.error(f"❌ Erreur lors de l'enregistrement de la vente: {str(e)}")
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
