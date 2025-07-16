@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
 import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,7 +43,6 @@ INSTALLED_APPS = [
     'sgc.core',
     'django_extensions',
     'rest_framework',
-    'api',
     'drf_yasg',
     'corsheaders',
     'django_prometheus',
@@ -126,8 +124,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
-# Authentification APIAPI_TOKEN = "ma-cle-api-super-secrete-123"
+# API
 API_TOKEN = "ma-cle-api-super-secrete-123"
+API_BASE_URL = "http://localhost:8000"
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

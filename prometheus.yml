@@ -11,3 +11,18 @@ scrape_configs:
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['cadvisor:8080']
+  - job_name: 'api1'
+    static_configs:
+      - targets: ['api1:8001']
+  - job_name: 'api2'
+    static_configs:
+      - targets: ['api2:8001']
+  - job_name: 'api3'
+    static_configs:
+      - targets: ['api3:8001']
+  - job_name: 'api4'
+    static_configs:
+      - targets: ['api4:8001']
+  - job_name: 'api5'
+    static_configs:
+      - targets: ['api4:8001']

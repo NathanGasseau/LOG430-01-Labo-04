@@ -3,7 +3,6 @@ class StockService:
         self.produit_repository = produit_repository
 
     def rechercher_produits(self, criteria):
-        print(f"Recherche de produits avec critères : {criteria}")
         return list(self.produit_repository.find(
             produit_id=criteria.get('id'),
             categorie=criteria.get('categorie'),

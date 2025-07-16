@@ -8,12 +8,11 @@ const headers = {
 
 export let options = {
   stages: [
-    { duration: '20s', target: 100 },
-    { duration: '20s', target: 200 },
-    { duration: '20s', target: 300 },
-    { duration: '20s', target: 400 },
-    { duration: '20s', target: 500 },
-    { duration: '20s', target: 0 },
+    { duration: '10s', target: 200 },
+    { duration: '10s', target: 400 },
+    { duration: '10s', target: 600 },
+    { duration: '10s', target: 800 },
+    { duration: '10s', target: 0 },
   ],
 };
 
@@ -21,7 +20,7 @@ export default function () {
   const magasinIds = [1, 2, 3, 4, 5];
 
   magasinIds.forEach((id) => {
-    const url = `http://localhost:8000/api/v1/produits/recherche/?id=${id}`;
+    const url = `http://localhost/api/v1/produits/recherche/?id=${id}`;
     const res = http.get(url, { headers });
 
     check(res, {

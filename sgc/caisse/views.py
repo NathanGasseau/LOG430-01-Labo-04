@@ -7,7 +7,6 @@ from django.conf import settings
 import requests
 
 def vue_rechercher_produit(request):
-
     critere_nom = request.GET.get('nom', '').strip()
     critere_cat = request.GET.get('categorie', '').strip()
     critere_id = request.GET.get('id', '').strip()
@@ -25,7 +24,7 @@ def vue_rechercher_produit(request):
             headers = {
                 "Authorization": f"Token {settings.API_TOKEN}"
             }
-            response = requests.get("http://localhost:8000/api/v1/produits/recherche/", params=criteria_filtrés, headers=headers)
+            response = requests.get(f"{settings.API_BASE_URL}/api/v1/produits/recherche/", params=criteria_filtrés, headers=headers)
             if response.status_code == 200:
                 produits = response.json()
             else:
@@ -50,7 +49,7 @@ def vue_enregistrer_vente(request):
                 raise Exception("Aucun identifiant de produit valide fourni.")
 
             # Appeler l'API REST pour enregistrer la vente
-            api_url = "http://localhost:8000//api/v1/ventes/"
+            api_url = f"{settings.API_BASE_URL}/api/v1/ventes/"
             headers = {
                 "Authorization": f"Token {settings.API_TOKEN}"
             }
