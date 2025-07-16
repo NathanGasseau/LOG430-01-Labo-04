@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.vue_accueil_caisse, name='accueil'),
     path('caisse/', include('sgc.caisse.urls')),
+    path('', include('django_prometheus.urls')),
     path('api/v1/', include('api.urls')),
-    #path('maison-mere/', include('sgc.maison_mere.urls')),
+
 ]
