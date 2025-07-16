@@ -13,10 +13,10 @@ package "Maison Mère (Serveur Central)" {
   [CaisseService] --> [DemandeApprovisionnementService]
   [CaisseService] --> [TransactionManager]
   [CaisseService] --> [LoggingService]
-  
-  [MaisonMereService] --> [DemandeApprovisionnementService]
-  [MaisonMereService] --> [VenteService]
+
   [MaisonMereService] --> [StockService]
+  [MaisonMereService] --> [VenteService]
+  [MaisonMereService] --> [DemandeApprovisionnementService]
   [MaisonMereService] --> [LoggingService]
 
   [StockService] --> [ProduitRepository]

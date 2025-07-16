@@ -1,24 +1,26 @@
 @startuml SGC
 
-title Système de Gestion de Caisse (SGC) - Architecture de Déploiement (API REST)
+title Système de Gestion de Caisse (SGC) - Architecture de Déploiement (API REST avec NGINX et N instances API)
 
 node "Maison Mère (Serveur Central)" {
-  node "Serveur Django Monolithique" {
+
+  node "Proxy NGINX" {
+    component "Serveur NGINX" <<proxy>>
+  }
+
+  node "Instance API N" {
     component "Interface API REST" <<REST>>
     component "REST Controller Layer" <<controller>>
-
     component "CaisseService"
     component "MaisonMereService"
     component "StockService"
     component "VenteService"
     component "DemandeApprovisionnementService"
-    component "RapportService"
-
+    component "TransactionManager"
+    component "LoggingService" <<library>>
     component "ProduitRepository"
     component "VenteRepository"
     component "DemandeApprovisionnementRepository"
-    component "TransactionManager"
-    component "LoggingService" <<library>>
     component "Pool de Connexions" <<connector>>
   }
 
@@ -39,8 +41,10 @@ node "Poste Maison Mère" {
   }
 }
 
-"Client Console" --> "Interface API REST" : HTTP/JSON
-"Interface Web Maison Mère" --> "Interface API REST" : HTTP/JSON
+"Client Console" --> "Serveur NGINX" : HTTP/JSON
+"Interface Web Maison Mère" --> "Serveur NGINX" : HTTP/JSON
+
+"Serveur NGINX" --> "Interface API REST" : proxy_pass
 
 "Interface API REST" --> "REST Controller Layer"
 "REST Controller Layer" --> "CaisseService"
@@ -48,7 +52,6 @@ node "Poste Maison Mère" {
 "REST Controller Layer" --> "StockService"
 "REST Controller Layer" --> "VenteService"
 "REST Controller Layer" --> "DemandeApprovisionnementService"
-"REST Controller Layer" --> "RapportService"
 
 "CaisseService" --> "StockService"
 "CaisseService" --> "VenteService"
@@ -58,9 +61,11 @@ node "Poste Maison Mère" {
 
 "MaisonMereService" --> "StockService"
 "MaisonMereService" --> "VenteService"
-"MaisonMereService" --> "RapportService"
+"MaisonMereService" --> "DemandeApprovisionnementService"
+"MaisonMereService" --> "LoggingService"
 
 "StockService" --> "ProduitRepository"
+"StockService" --> "DemandeApprovisionnementRepository"
 "VenteService" --> "VenteRepository"
 "DemandeApprovisionnementService" --> "DemandeApprovisionnementRepository"
 
@@ -70,4 +75,3 @@ node "Poste Maison Mère" {
 "Pool de Connexions" --> DB
 
 @enduml
-s
