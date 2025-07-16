@@ -15,7 +15,8 @@ Cette application Django simule un système de gestion de caisse pour un réseau
 - Générer des rapports consolidés sur les ventes  
 - Visualiser les performances des magasins  
 
-L'application utilise PostgreSQL comme base de données centrale, avec un **pool de connexions** partagé entre les services internes. Django ORM assure la persistance et les transactions.
+L'application utilise PostgreSQL comme base de données centrale, avec un **pool de connexions** partagé entre les services internes. Django ORM assure la persistance et les transactions.  
+Depuis le laboratoire 4, l'architecture REST utilise un **serveur NGINX** comme **proxy inverse** pour répartir la charge entre **N instances de l'API REST** déployées en parallèle (scalabilité horizontale).
 
 ---
 
@@ -41,39 +42,11 @@ python manage.py makemigrations core
 # Appliquer toutes les migrations à la base de données
 python manage.py migrate
 
-# (Optionnel) Lancer le script de peuplement de la base
-python manage.py runscript seed_data
 ```
 
 Accéder à l’application :  
 [http://localhost:8000](http://localhost:8000)  
 Ou : [http://10.194.32.191:8000](http://10.194.32.191:8000) si lancé depuis une VM distante.
-
----
-
-#### 💻 Option 2 – Lancement manuel local (environnement virtuel)
-
-Prérequis :
-- python3 3.10+  
-- pip + virtualenv  
-- PostgreSQL (local ou via Docker)  
-- Django 4.x  
-- (Optionnel) pgAdmin ou autre client PostgreSQL
-
-```bash
-# Cloner et installer
-git clone https://github.com/NathanGasseau/LOG430-01-Labo-03.git
-cd LOG430-01-Labo-03
-python3 -m venv venv
-source venv/bin/activate  # (Sous Windows: venv\Scripts\activate)
-pip install -r requirements.txt
-
-# Configuration et exécution
-python3 manage.py migrate
-python3 manage.py runserver
-```
-
-Accéder à l’application : [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
@@ -120,4 +93,3 @@ LOG430-01-Labo-03/
 ├── README.md                # Fichier d’instructions
 └── venv/                    # Environnement virtuel Python (local)
 ```
-
