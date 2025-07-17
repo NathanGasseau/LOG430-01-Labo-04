@@ -1,25 +1,34 @@
 @startuml
-
 title DS08 – Visualiser les performances des magasins
 
 actor Gestionnaire
-participant UI
+participant "Interface Web Maison Mère" as UI
+participant "NGINX (Load Balancer)" as NGINX
+participant "REST Controller" as Controller
 participant MaisonMereService
 participant VenteService
 participant VenteRepository
+participant "Cache Redis" as Redis
 
-Gestionnaire -> UI : Visualiser performances magasins
-UI -> MaisonMereService : getStatsParMagasin()
-MaisonMereService -> VenteService : getStatsParMagasin()
-
-loop Pour chaque magasin
-  VenteService -> VenteRepository : findByMagasin(magasin)
-  VenteRepository --> VenteService : List<Vente>
-  VenteService -> VenteService : genererKpiParMagasin(magasin)
+Gestionnaire -> UI : Visualiser performances
+UI -> NGINX : HTTP GET /stats/magasins
+NGINX -> Controller : HTTP GET /stats/magasins
+Controller -> MaisonMereService : getStatsParMagasin()
+MaisonMereService -> Redis : get(stats)
+alt cache hit
+  Redis --> MaisonMereService : Map<Magasin, KPI>
+else cache miss
+  MaisonMereService -> VenteService : getStatsParMagasin()
+  loop Par magasin
+    VenteService -> VenteRepository : findByMagasin()
+    VenteRepository --> VenteService : List<Vente>
+    VenteService -> VenteService : genererKPI()
+  end
+  VenteService --> MaisonMereService : Map<Magasin, KPI>
+  MaisonMereService -> Redis : set(stats)
 end
-
-VenteService --> MaisonMereService : Map<Magasin, KPIs>
-MaisonMereService --> UI : Données agrégées
+MaisonMereService --> Controller : KPI data
+Controller --> NGINX : JSON
+NGINX --> UI : KPI data
 UI --> Gestionnaire : Affiche tableau de bord
-
 @enduml

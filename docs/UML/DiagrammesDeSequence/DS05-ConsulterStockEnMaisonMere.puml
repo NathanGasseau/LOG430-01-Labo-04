@@ -1,17 +1,28 @@
 @startuml
-
 title DS05 – Consulter stock à la maison mère
 
 actor Employe
-participant UI
+participant "Interface Web Maison Mère" as UI
+participant "NGINX (Load Balancer)" as NGINX
+participant "REST Controller" as Controller
 participant MaisonMereService
 participant StockService
+participant "Cache Redis" as Redis
 
 Employe -> UI : Consulter stock central
-UI -> MaisonMereService : consulterStockGlobal()
-MaisonMereService -> StockService : consulterStock()
-StockService --> MaisonMereService : List<StockProduit>
-MaisonMereService --> UI : List<StockProduit>
+UI -> NGINX : HTTP GET /stock/central
+NGINX -> Controller : HTTP GET /stock/central
+Controller -> MaisonMereService : consulterStockGlobal()
+MaisonMereService -> Redis : get(stock_central)
+alt cache hit
+  Redis --> MaisonMereService : StockProduit[]
+else cache miss
+  MaisonMereService -> StockService : consulterStock()
+  StockService --> MaisonMereService : StockProduit[]
+  MaisonMereService -> Redis : set(stock_central)
+end
+MaisonMereService --> Controller : StockProduit[]
+Controller --> NGINX : JSON
+NGINX --> UI : JSON
 UI --> Employe : Affiche stock
-
 @enduml

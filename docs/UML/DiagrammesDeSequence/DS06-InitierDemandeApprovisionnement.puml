@@ -1,20 +1,26 @@
 @startuml
-
 title DS06 – Initier demande d'approvisionnement
 
 actor Employe
-participant UI
+participant "Client Console" as UI
+participant "NGINX (Load Balancer)" as NGINX
+participant "REST Controller" as Controller
 participant CaisseService
 participant DemandeApprovisionnementService
 participant DemandeApprovisionnementRepository
+participant "Cache Redis" as Redis
 
 Employe -> UI : Initier demande (produit, quantité)
-UI -> CaisseService : initierDemandeApprovisionnement(produit, quantité)
-CaisseService -> DemandeApprovisionnementService : creerDemande(produit, quantité, magasin)
-DemandeApprovisionnementService -> DemandeApprovisionnementRepository : save(demande)
+UI -> NGINX : HTTP POST /approvisionnements
+NGINX -> Controller : HTTP POST /approvisionnements
+Controller -> CaisseService : initierDemandeApprovisionnement()
+CaisseService -> DemandeApprovisionnementService : creerDemande()
+DemandeApprovisionnementService -> DemandeApprovisionnementRepository : save()
 DemandeApprovisionnementRepository --> DemandeApprovisionnementService : confirmation
-DemandeApprovisionnementService --> CaisseService : demande créée
-CaisseService --> UI : Confirmation demande
+DemandeApprovisionnementService -> Redis : invalidate(demandes)
+DemandeApprovisionnementService --> CaisseService : OK
+CaisseService --> Controller : confirmation
+Controller --> NGINX : HTTP 201
+NGINX --> UI : confirmation
 UI --> Employe : Affiche confirmation
-
 @enduml

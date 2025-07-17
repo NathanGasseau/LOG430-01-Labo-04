@@ -1,19 +1,27 @@
 @startuml
-title DS02 – Enregistrer une vente (corrigé)
+title DS02 – Enregistrer une vente
 
 actor Employe
-participant UI
+participant "Client Console" as UI
+participant "NGINX (Load Balancer)" as NGINX
+participant "REST Controller" as Controller
 participant CaisseService
 participant StockService
 participant VenteService
 participant TransactionManager
+participant "Cache Redis" as Redis
 
 Employe -> UI : Enregistrer vente
-UI -> CaisseService : enregistrerVente(listeProduits)
+UI -> NGINX : HTTP POST /ventes
+NGINX -> Controller : HTTP POST /ventes
+Controller -> CaisseService : enregistrerVente(produits)
 CaisseService -> TransactionManager : begin()
 CaisseService -> StockService : reserverStock(produits)
 CaisseService -> VenteService : enregistrerVente(produits)
+CaisseService -> Redis : invalidate(stock, produits)
 CaisseService -> TransactionManager : commit()
-CaisseService --> UI : Confirmation vente
-UI --> Employe : Affiche total et confirmation
+CaisseService --> Controller : confirmation
+Controller --> NGINX : HTTP 201
+NGINX --> UI : confirmation
+UI --> Employe : Affiche confirmation
 @enduml
