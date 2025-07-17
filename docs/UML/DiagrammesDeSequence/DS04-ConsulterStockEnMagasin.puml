@@ -1,17 +1,31 @@
 @startuml
-
 title DS04 – Consulter stock en magasin
 
 actor Employe
-participant UI
+participant "Client Console" as UI
+participant "NGINX (Load Balancer)" as NGINX
+participant "REST Controller" as Controller
 participant CaisseService
 participant StockService
+participant "Cache Redis" as Redis
+participant ProduitRepository
 
 Employe -> UI : Consulter stock magasin
-UI -> CaisseService : consulterStock()
-CaisseService -> StockService : consulterStock()
-StockService --> CaisseService : List<StockProduit>
-CaisseService --> UI : List<StockProduit>
+UI -> NGINX : HTTP GET /stock
+NGINX -> Controller : HTTP GET /stock
+Controller -> CaisseService : consulterStock()
+CaisseService -> Redis : get(stock_magasin)
+alt cache hit
+  Redis --> CaisseService : StockProduit[]
+else cache miss
+  CaisseService -> StockService : consulterStock()
+  StockService -> ProduitRepository : getStock()
+  ProduitRepository --> StockService : StockProduit[]
+  StockService --> CaisseService : StockProduit[]
+  CaisseService -> Redis : set(stock_magasin)
+end
+CaisseService --> Controller : StockProduit[]
+Controller --> NGINX : JSON
+NGINX --> UI : JSON
 UI --> Employe : Affiche stock
-
 @enduml

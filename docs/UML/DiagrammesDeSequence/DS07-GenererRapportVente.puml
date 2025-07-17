@@ -1,20 +1,31 @@
 @startuml
-
 title DS07 – Générer un rapport consolidé des ventes
 
 actor Gestionnaire
-participant UI
+participant "Interface Web Maison Mère" as UI
+participant "NGINX (Load Balancer)" as NGINX
+participant "REST Controller" as Controller
 participant MaisonMereService
 participant VenteService
 participant VenteRepository
+participant "Cache Redis" as Redis
 
-Gestionnaire -> UI : Générer rapport consolidé
-UI -> MaisonMereService : genererRapportConsolide()
-MaisonMereService -> VenteService : rechercherVenteTousMagasins()
-VenteService -> VenteRepository : getAll()
-VenteRepository --> VenteService : List<Vente>
-VenteService --> MaisonMereService : List<Vente>
-MaisonMereService --> UI : Rapport consolidé
-UI --> Gestionnaire : Affiche ou télécharge rapport
-
+Gestionnaire -> UI : Générer rapport
+UI -> NGINX : HTTP GET /rapports/consolide
+NGINX -> Controller : HTTP GET /rapports/consolide
+Controller -> MaisonMereService : genererRapportConsolide()
+MaisonMereService -> Redis : get(rapport)
+alt cache hit
+  Redis --> MaisonMereService : Rapport
+else cache miss
+  MaisonMereService -> VenteService : rechercherVenteTousMagasins()
+  VenteService -> VenteRepository : getAll()
+  VenteRepository --> VenteService : List<Vente>
+  VenteService --> MaisonMereService : List<Vente>
+  MaisonMereService -> Redis : set(rapport)
+end
+MaisonMereService --> Controller : Rapport
+Controller --> NGINX : JSON
+NGINX --> UI : Rapport
+UI --> Gestionnaire : Affiche rapport
 @enduml

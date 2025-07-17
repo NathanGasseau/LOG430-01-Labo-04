@@ -26,11 +26,17 @@ package "Maison Mère (Serveur Central)" {
 
   [DemandeApprovisionnementService] --> [DemandeApprovisionnementRepository]
 
+  [ProduitRepository] --> [Cache Redis]
+  [VenteRepository] --> [Cache Redis]
+  [DemandeApprovisionnementRepository] --> [Cache Redis]
+
   [ProduitRepository] --> [Pool de Connexions]
   [VenteRepository] --> [Pool de Connexions]
   [DemandeApprovisionnementRepository] --> [Pool de Connexions]
 
   [Pool de Connexions] --> [Base de données PostgreSQL]
+
+  [Cache Redis] <<cache>>
 }
 
 @enduml

@@ -3,14 +3,26 @@ title DS01 – Rechercher un produit
 
 actor Employe
 participant "Client Console" as UI
+participant "NGINX (Load Balancer)" as NGINX
+participant "REST Controller" as Controller
 participant CaisseService
+participant "Cache Redis" as Redis
 participant ProduitRepository
 
 Employe -> UI : Demande recherche produit
-UI -> CaisseService : rechercherProduit(critères)
-CaisseService -> ProduitRepository : findById / findByNom / findByCategorie
-ProduitRepository --> CaisseService : List<Produit>
-CaisseService --> UI : List<Produit>
+UI -> NGINX : HTTP GET /produits?critères
+NGINX -> Controller : HTTP GET /produits?critères
+Controller -> CaisseService : rechercherProduit(critères)
+CaisseService -> Redis : get(produits)
+alt cache hit
+  Redis --> CaisseService : List<Produit>
+else cache miss
+  CaisseService -> ProduitRepository : findBy*
+  ProduitRepository --> CaisseService : List<Produit>
+  CaisseService -> Redis : set(produits)
+end
+CaisseService --> Controller : List<Produit>
+Controller --> NGINX : JSON List<Produit>
+NGINX --> UI : JSON List<Produit>
 UI --> Employe : Affiche les résultats
-
 @enduml

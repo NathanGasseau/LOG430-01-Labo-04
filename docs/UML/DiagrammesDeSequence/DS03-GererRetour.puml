@@ -2,22 +2,27 @@
 title DS03 – Gérer un retour (annuler une vente)
 
 actor Employe
-participant UI
+participant "Client Console" as UI
+participant "NGINX (Load Balancer)" as NGINX
+participant "REST Controller" as Controller
 participant CaisseService
 participant TransactionManager
 participant VenteRepository
 participant StockService
+participant "Cache Redis" as Redis
 
 Employe -> UI : Gérer retour
-UI -> CaisseService : annulerVente(idVente)
-
+UI -> NGINX : HTTP DELETE /ventes/{id}
+NGINX -> Controller : HTTP DELETE /ventes/{id}
+Controller -> CaisseService : annulerVente(id)
 CaisseService -> TransactionManager : begin()
-CaisseService -> VenteRepository : findById(idVente)
-CaisseService -> StockService : libererStock(produitsRetournes)
-CaisseService -> VenteRepository : delete(idVente)
+CaisseService -> VenteRepository : findById(id)
+CaisseService -> StockService : libererStock(produits)
+CaisseService -> VenteRepository : delete(id)
+CaisseService -> Redis : invalidate(stock)
 CaisseService -> TransactionManager : commit()
-
-CaisseService --> UI : Confirmation retour
+CaisseService --> Controller : confirmation
+Controller --> NGINX : HTTP 200
+NGINX --> UI : confirmation
 UI --> Employe : Affiche confirmation
-
 @enduml

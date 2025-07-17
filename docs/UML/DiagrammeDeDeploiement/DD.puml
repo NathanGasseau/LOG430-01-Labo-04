@@ -1,6 +1,6 @@
 @startuml SGC
 
-title Système de Gestion de Caisse (SGC) - Architecture de Déploiement (API REST avec NGINX et N instances API)
+title Système de Gestion de Caisse (SGC) - Architecture de Déploiement
 
 node "Maison Mère (Serveur Central)" {
 
@@ -8,24 +8,37 @@ node "Maison Mère (Serveur Central)" {
     component "Serveur NGINX" <<proxy>>
   }
 
-  node "Instance API N" {
-    component "Interface API REST" <<REST>>
-    component "REST Controller Layer" <<controller>>
-    component "CaisseService"
-    component "MaisonMereService"
-    component "StockService"
-    component "VenteService"
-    component "DemandeApprovisionnementService"
-    component "TransactionManager"
-    component "LoggingService" <<library>>
-    component "ProduitRepository"
-    component "VenteRepository"
-    component "DemandeApprovisionnementRepository"
-    component "Pool de Connexions" <<connector>>
+  node "Cluster d'APIs (N instances)" {
+    node "Instance API N" {
+      component "Interface API REST" <<REST>>
+      component "REST Controller Layer" <<controller>>
+      component "CaisseService"
+      component "MaisonMereService"
+      component "StockService"
+      component "VenteService"
+      component "DemandeApprovisionnementService"
+      component "TransactionManager"
+      component "LoggingService" <<library>>
+      component "ProduitRepository"
+      component "VenteRepository"
+      component "DemandeApprovisionnementRepository"
+      component "Pool de Connexions" <<connector>>
+      component "Client Redis" <<cache>>
+    }
   }
 
   node "Serveur Base de Données" {
     database "Base de données PostgreSQL" as DB
+  }
+
+  node "Cache Redis" {
+    component "Serveur Redis" <<cache>>
+  }
+
+  node "Monitoring" {
+    component "Prometheus" <<monitoring>>
+    component "Grafana" <<dashboard>>
+    component "K6" <<load test>>
   }
 }
 
@@ -43,35 +56,14 @@ node "Poste Maison Mère" {
 
 "Client Console" --> "Serveur NGINX" : HTTP/JSON
 "Interface Web Maison Mère" --> "Serveur NGINX" : HTTP/JSON
-
 "Serveur NGINX" --> "Interface API REST" : proxy_pass
-
-"Interface API REST" --> "REST Controller Layer"
-"REST Controller Layer" --> "CaisseService"
-"REST Controller Layer" --> "MaisonMereService"
-"REST Controller Layer" --> "StockService"
-"REST Controller Layer" --> "VenteService"
-"REST Controller Layer" --> "DemandeApprovisionnementService"
-
-"CaisseService" --> "StockService"
-"CaisseService" --> "VenteService"
-"CaisseService" --> "DemandeApprovisionnementService"
-"CaisseService" --> "TransactionManager"
-"CaisseService" --> "LoggingService"
-
-"MaisonMereService" --> "StockService"
-"MaisonMereService" --> "VenteService"
-"MaisonMereService" --> "DemandeApprovisionnementService"
-"MaisonMereService" --> "LoggingService"
-
-"StockService" --> "ProduitRepository"
-"StockService" --> "DemandeApprovisionnementRepository"
-"VenteService" --> "VenteRepository"
-"DemandeApprovisionnementService" --> "DemandeApprovisionnementRepository"
-
+"Client Redis" --> "Serveur Redis"
 "ProduitRepository" --> "Pool de Connexions"
 "VenteRepository" --> "Pool de Connexions"
 "DemandeApprovisionnementRepository" --> "Pool de Connexions"
 "Pool de Connexions" --> DB
+"Prometheus" --> "Instance API N" : scrape metrics
+"K6" --> "Serveur NGINX" : test de charge
+"Grafana" --> "Prometheus" : visualisation
 
 @enduml
